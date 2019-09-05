@@ -8,10 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -71,5 +68,23 @@ public class CheeseController {
             cheeseDao.delete(cheeseId);
         }
         return "redirect:";
+    }
+
+    @RequestMapping(value="edit/{id}", method = RequestMethod.GET)
+    public String displayEditForm(Model model, @PathVariable int id){
+        model.addAttribute("cheese", cheeseDao.findOne(id));
+        model.addAttribute("title","Edit Cheese");
+        model.addAttribute("categories", categoryDao.findAll());
+        return "cheese/edit";
+    }
+
+    @RequestMapping(value = "edit/{id}", method = RequestMethod.POST)
+    public String processEditForm(int id, String name, String description, @ModelAttribute Cheese ch){
+        Cheese cheese = cheeseDao.findOne(id);
+        cheese.setCategory(categoryDao.findOne(ch.getCategory().getId()));
+        cheese.setName(name);
+        cheese.setDescription(description);
+        cheeseDao.save(cheese);
+        return "redirect:/cheese";
     }
 }
